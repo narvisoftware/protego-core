@@ -1,0 +1,62 @@
+[CAUTION]
+.DRAFT
+====
+Work in progress.
+====
+
+==== RBAC
+
+"Technothinkers love precision at the expense of applicability."
+-- Nassim Taleb, Antifragile
+
+NIST RBAC:
+
+http://csrc.nist.gov/groups/SNS/rbac
+http://csrc.nist.gov/groups/SNS/rbac/faq.html
+https://www.amazon.com/Role-Based-Access-Control-Second-Ferraiolo/dp/1630811955/
+
+=== ! no negative permissions
+"The NIST (nist rbac) model is based on positive permissions that confer the ability to do something on holders of the permission. The NIST model does not rule out the use of so-called negative permissions which deny access. Thus vendors are free to add this feature. Nevertheless vendors and users are cautioned that use of negative permissions can be very confusing, especially in presence of general hierarchies. The uses to which they are put can often be better achieved by judicious use of constraints." [The NIST Model for Role-Based Access Control: Towards A Unified Standard Ravi Sandhu, David Ferraiolcfi and Richard Kuhrô ]
+
+=== drawbacks of rbac
+
+=== The two questions:
+. What User X can access?
+. Who can access Resource Y?
+
+While RBAC can answer to the first rule (and not the second), because the permissions are kept on the User (trough Roles)
+int the form of a protected resource plus an allowed action, this framework unfortunately cannot respond neither.
+
+=== Language
+
+.Names used:
+. users
+. permissions
+.. protected resource
+.. actions
+. subject
+. session
+.. security context
+
+ABAC defines `Subject Attributes`, `Object Attributes` and `Environmental Attributes`
+
+== ABAC
+
+`........`
+
+
+[IMPORTANT]
+.Vulnerability aspects
+====
+I can identify two:
+
+. a `PolicyRulesProvider` implementation can be build unsafely by being tricked to load malicious `PolicyRule` classes.
+For example, a `PolicyRulesProvider` can load all `PolicyRule` subclasses from classpath. But into an open source
+library used by the application, someone can add a `PolicyRule` that permit everything to a specific username for example.
+. a `PolicyRule` can have bugs and unintendedly respond with PERMIT. So `PolicyRule` implementations must be fully tested
+with all edge cases.
+====
+
+=== License
+ifdef::env-name[:relfilesuffix: .adoc]
+This project is licensed under the MIT License - see the xref:License.adoc[License.adoc] file for details.
