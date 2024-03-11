@@ -18,6 +18,13 @@ https://www.amazon.com/Role-Based-Access-Control-Second-Ferraiolo/dp/1630811955/
 === ! no negative permissions
 "The NIST (nist rbac) model is based on positive permissions that confer the ability to do something on holders of the permission. The NIST model does not rule out the use of so-called negative permissions which deny access. Thus vendors are free to add this feature. Nevertheless vendors and users are cautioned that use of negative permissions can be very confusing, especially in presence of general hierarchies. The uses to which they are put can often be better achieved by judicious use of constraints." [The NIST Model for Role-Based Access Control: Towards A Unified Standard Ravi Sandhu, David Ferraiolcfi and Richard Kuhrô ]
 
+== ! Business rules and workflows
+Does not ahe anything in common with security.
+
+TODO: elaborate. Restricted documents in army Classified, Secret, Top Secret (ranks in the army vs positions held in the army).
+
+TODO: elaborate: Mandatory Access Control (MAC) and Discretionary Access Control (DAC). Con owner of  resource grant permission to another user to that permission?
+
 === drawbacks of rbac
 
 === The two questions:

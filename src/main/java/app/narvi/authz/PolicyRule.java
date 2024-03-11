@@ -7,5 +7,5 @@ public interface PolicyRule {
     NOT_APPLICABLE
   }
 
-  Decision evaluate();
+  Decision evaluate(Permission permission);
 }
