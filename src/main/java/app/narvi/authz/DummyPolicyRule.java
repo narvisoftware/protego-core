@@ -1,9 +1,7 @@
 package app.narvi.authz;
 
-import app.narvi.authz.PolicyRule.Decision;
-import app.narvi.authz.rules.BasicPolicyRule;
 
-public class AllowOwnTenantAccess implements PolicyRule {
+public class DummyPolicyRule implements PolicyRule {
 
 
   @Override
@@ -16,5 +14,5 @@ public class AllowOwnTenantAccess implements PolicyRule {
     return null;
   }
 
- 
+
 }
