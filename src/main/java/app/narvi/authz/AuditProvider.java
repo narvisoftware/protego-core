@@ -1,7 +1,9 @@
 package app.narvi.authz;
 
+import app.narvi.authz.PolicyRule.Decision;
+
 public interface AuditProvider {
 
-  public void audit(Permission permission, PolicyRule policyRule, SecurityContext securityContext);
+  void audit(Permission permission, PolicyRule policyRule, Decision decision);
 
 }

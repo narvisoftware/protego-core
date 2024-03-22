@@ -3,6 +3,7 @@ package app.narvi.authz;
 import static app.narvi.authz.PolicyRule.Decision.NOT_APPLICABLE;
 import static app.narvi.authz.PolicyRule.Decision.PERMIT;
 
+import java.lang.invoke.MethodHandles;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,14 +11,12 @@ import java.util.ServiceLoader;
 import java.util.stream.StreamSupport;
 
 import app.narvi.authz.PolicyRule.Decision;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class PolicyEvaluator<E extends PolicyRule> {
 
-  public static final String NEW_LINE_CHARACTER = "\n";
-  public static final String PUBLIC_KEY_START_KEY_STRING = "-----BEGIN PUBLIC KEY-----";
-  public static final String PUBLIC_KEY_END_KEY_STRING = "-----END PUBLIC KEY-----";
-  public static final String EMPTY_STRING = "";
-  public static final String NEW_CR_CHARACTER = "\r";
+  private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
   private List<E> rulesCollection;
 
@@ -51,16 +50,26 @@ public class PolicyEvaluator<E extends PolicyRule> {
       throw new IllegalStateException("RulesCollection has not being initialized.");
     }
     for (PolicyRule aPolicyRule : ((List<? extends PolicyRule>) soleInstance.rulesCollection)) {
-      if (aPolicyRule.evaluate(permission) == PERMIT) {
+      Decision decision = aPolicyRule.evaluate(permission);
+      AuditServices.getAuditProviders().forEach(auditProvider -> auditProvider.audit(permission, aPolicyRule, decision));
+      if (decision == PERMIT) {
         return PERMIT;
       }
     }
     return NOT_APPLICABLE;
+
   }
 
   static {
+    LOG.info("Loading Audit Provides");
     ServiceLoader<AuditProvider> auditLoader = ServiceLoader.load(AuditProvider.class);
+    auditLoader.forEach(auditProvider ->
+        LOG.info("Found Audit Provider: "+ auditProvider.getClass().getCanonicalName())
+    );
     auditLoader.forEach(AuditServices::addProvider);
+    if(auditLoader.stream().count() == 0) {
+      LOG.info("NO Audit Providers found!");
+    }
   }
 
 }
