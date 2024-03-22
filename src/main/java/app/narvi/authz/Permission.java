@@ -2,8 +2,12 @@ package app.narvi.authz;
 
 public class Permission<PR, A> {
 
-  public Permission(PR protectedResource, A action) {
+  PR protectedResource;
+  A action;
 
+  public Permission(PR protectedResource, A action) {
+    this.protectedResource = protectedResource;
+    this.action = action;
   }
 
 }

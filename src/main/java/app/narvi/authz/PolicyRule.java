@@ -9,5 +9,4 @@ public interface PolicyRule {
 
   Decision evaluate(Permission permission);
 
-  String signature();
 }

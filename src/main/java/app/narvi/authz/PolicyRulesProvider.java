@@ -2,6 +2,6 @@ package app.narvi.authz;
 
 public interface PolicyRulesProvider {
 
-  Iterable<PolicyRule> collect();
+  Iterable<? super PolicyRule> collect();
 
 }
