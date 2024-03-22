@@ -40,7 +40,7 @@ public class PolicyEvaluator<E extends PolicyRule> {
   }
 
   public static void evaluatePermission(Permission permission) {
-    if(evaluate(permission) == NOT_APPLICABLE) {
+    if (evaluate(permission) == NOT_APPLICABLE) {
       throw new PolicyException("Action not permitted");
     }
   }
@@ -51,7 +51,8 @@ public class PolicyEvaluator<E extends PolicyRule> {
     }
     for (PolicyRule aPolicyRule : ((List<? extends PolicyRule>) soleInstance.rulesCollection)) {
       Decision decision = aPolicyRule.evaluate(permission);
-      AuditServices.getAuditProviders().forEach(auditProvider -> auditProvider.audit(permission, aPolicyRule, decision));
+      AuditServices.getAuditProviders()
+          .forEach(auditProvider -> auditProvider.audit(permission, aPolicyRule, decision));
       if (decision == PERMIT) {
         return PERMIT;
       }
@@ -64,10 +65,10 @@ public class PolicyEvaluator<E extends PolicyRule> {
     LOG.info("Loading Audit Provides");
     ServiceLoader<AuditProvider> auditLoader = ServiceLoader.load(AuditProvider.class);
     auditLoader.forEach(auditProvider ->
-        LOG.info("Found Audit Provider: "+ auditProvider.getClass().getCanonicalName())
+        LOG.info("Found Audit Provider: " + auditProvider.getClass().getCanonicalName())
     );
     auditLoader.forEach(AuditServices::addProvider);
-    if(auditLoader.stream().count() == 0) {
+    if (auditLoader.stream().count() == 0) {
       LOG.info("NO Audit Providers found!");
     }
   }
