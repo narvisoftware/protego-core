@@ -1,6 +1,7 @@
 = Protego Core
 :icons: font
 
+image::https://badgers.space/badge/foo/Warning/orange?icon=feather-alert-triangle&scale=1.4&label=&label_color=red[]
 [WARNING]
 .DRAFT
 ====
