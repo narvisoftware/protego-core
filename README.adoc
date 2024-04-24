@@ -55,7 +55,7 @@ ABAC defines `Subject Attributes`, `Object Attributes` and `Environmental Attrib
 
 `........`
 
-
+image:https://badgers.space/badge/foo/Important/gray?icon=feather-alert-circle&scale=1.4&label=&label_color=green[]
 [IMPORTANT]
 .Vulnerability aspects
 ====
