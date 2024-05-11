@@ -55,42 +55,40 @@ The implementations used in the code are from https://github.com/narvisoftware/p
 Init the framework:
 [source,java]
 ----
-    PolicyRulesProvider policyRulesProvider = new BasicPolicyRuleProvider();
-    PolicyEvaluator.registerProviders(policyRulesProvider);
+PolicyRulesProvider policyRulesProvider = new BasicPolicyRuleProvider();
+PolicyEvaluator.registerProviders(policyRulesProvider);
 ----
 
 Store the authenticated user:
 [source,java]
 ----
-  private static final ScopedValue<User> AUTHENTICATED_USER= ScopedValue.newInstance();
-  ...
-  User authenticatedUser = authenticate(credentials);
-  ScopedValue.where(AUTHENTICATED_USER, authenticatedUser).run(() -> service.processRequest(pacientRecord))
+private static final ScopedValue<User> AUTHENTICATED_USER = ScopedValue.newInstance();
+...
+User authenticatedUser = authenticate(credentials);
+ScopedValue.where(AUTHENTICATED_USER, authenticatedUser).run(() -> service.processRequest(pacientRecord))
 ----
 
 Test the access:
 [source,java]
 ----
-    AllowSameBranchPermission allowSameBranchPermission = new AllowSameBranchPermission(READ, somePacientRecord);
-    PolicyEvaluator.evaluatePermission(allowSameBranchPermission);
+AllowSameBranchPermission allowSameBranchPermission = new AllowSameBranchPermission(READ, somePacientRecord);
+PolicyEvaluator.evaluatePermission(allowSameBranchPermission);
 ----
 
 The permission:
 [source,java]
 ----
-  public class AllowSameBranchPermission<CrudAction, PacientRecord> extends Permission {
-    public AllowSameBranchPermission(PacientRecord protectedResource, CrudAction action) {
-      super(protectedResource, action);
-    }
+public class AllowSameBranchPermission<CrudAction, PacientRecord> extends Permission {
+  public AllowSameBranchPermission(PacientRecord protectedResource, CrudAction action) {
+    super(protectedResource, action);
   }
+}
 ----
 And the policy rule:
 [source,java]
 ----
 public class AllowSameBranchPolicyRule implements PolicyRule {
-
-  private static final ScopedValue<User> AUTHENTICATED_USER = ScopedValue.newInstance();
-
+  
   @Override
   public Decision evaluate(Permission permission) {
     if (!(permission instanceof AllowSameBranchPermission)) {
