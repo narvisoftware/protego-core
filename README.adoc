@@ -88,7 +88,7 @@ And the policy rule:
 [source,java]
 ----
 public class AllowSameBranchPolicyRule implements PolicyRule {
-  
+
   @Override
   public Decision evaluate(Permission permission) {
     if (!(permission instanceof AllowSameBranchPermission)) {
@@ -131,6 +131,7 @@ For example, a `PolicyRulesProvider` can load all `PolicyRule` subclasses from c
 library used by the application, someone can add a `PolicyRule` that permit everything to a specific username for example.
 .. to avoid this, in the implementation project (https://github.com/narvisoftware/protego-basic[protego-basic]), the https://github.com/narvisoftware/protego-basic/blob/main/src/main/java/app/narvi/authz/rules/BasicPolicyRuleProvider.java[BasicPolicyRuleProvider] verifies the signatures of each https://github.com/narvisoftware/protego-core/blob/main/src/main/java/app/narvi/authz/PolicyRule.java[PolicyRule]
 .. the https://github.com/narvisoftware/protego-core/blob/main/src/main/java/app/narvi/authz/PolicyEvaluator.java[PolicyEvaluator] can be initialized only once.
+.. I use Java Platform Module System (JPMS) in order to forbid illegal changes to private variables that store the policy rules.
 . a `PolicyRule` can have bugs and unintendedly respond with PERMIT.
 .. as a result, each `PolicyRule` implementations must be fully tested with all edge cases.
 ====
