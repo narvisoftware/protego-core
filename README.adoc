@@ -1,59 +1,127 @@
 = Protego Core
 :icons: font
 
+This project is a simple implementation of an authorization mechanism. It can be named an Attribute Based Authorization Control (ABAC) or simply a Policy Rule Based Authorization.
+
+This is not a fancy enterprise level, distributed and centralised authorisation mechanism. It is a simple-to-use framework as it should be any other.
+
+The story is that while I was looking for an authorization implementation, I've found RBAC (Role Based Authorization Control). That was somewhere on 2009/2010. At that time, RBAC was already a standard (https://csrc.nist.gov/projects/role-based-access-control[NIST RBAC]).
+
+At that time, Spring Security was a mess. An implementation of Access Control Lists (ACL) following no standards.
+
+If I mentioned ACLs, the rbac standard follows the capability lists approach of implementing the Lampson's access control matrix.
+RBAC comes with multiple optional levels of functionality (RBAC0 to RBAC3).
+
+In the years that followed, I've implemented the RBAC model on multiple project. I've implemented only RBAC0, but with the addition of "dynamic evaluation of permissions". That means that in order to avoid the role "explosion", the permissions are evaluated at runtime based on user's and resource attributes.
+
+We cannot create a role for each combination of user and resource attributes.
+For example a access rule can be: _"User can READ patient's records if it is a doctor, the patient have an appointment to the doctor and can only access records related to the medicine branch that the doctor is part of. But this only during the working hours of the doctor."_
+This can be done, of course, only if we evaluate the rule at runtime based of the attributes of the doctor, of the user and of the medical records.
+
+Here I need to mention to be aware what represents security concerns and what is business flow.
+
+However, after some implementation of RBAC0 + "Dynamic Permissions", I've realised that there is no real need for roles. And if we name these permissions "Policy Rules", there is a simple implementation of what it supposed to be ABAC.
+I've once implemented a Domain Specific Language for such Policy Rules, but is just simpler to implement them in Java.
+
+I've found very disappointing that NIST ABAC (Attribute-Based Access Control) is very complicated (ine the book https://www.amazon.com/Attribute-Based-Control-Information-Security-Privacy-ebook/dp/B076VLFTBR/[Attribute-Based Access Control from Amazon].
+I guess that the reason to be so complicated it is to be able to answer to the two questions:
+
+. On what resources user X has access?
+. What users can access resource Y?
+
+Well, this framework can answer neither. RBAC can answer to the first rule (and not the second).
+
 image::https://badgers.space/badge/foo/Warning/orange?icon=feather-alert-triangle&scale=1.4&label=&label_color=red[]
-[WARNING]
-.DRAFT
-====
-Work in progress.
-====
+To keep things simple and to contradict Nassim Taleb who wrote on _Antifragile_ that _"Technothinkers love precision at the expense of applicability"_, there are no negative permissions or better said: *policy rules cannot explicitly deny access*. This is in concordance with NIST RBAC.
+The poly rule can permit something or just withold his vote.
+And also there are no roles. Because why not?
 
-==== RBAC
-
-"Technothinkers love precision at the expense of applicability."
--- Nassim Taleb, Antifragile
-
-NIST RBAC:
-
-http://csrc.nist.gov/groups/SNS/rbac
-http://csrc.nist.gov/groups/SNS/rbac/faq.html
-https://www.amazon.com/Role-Based-Access-Control-Second-Ferraiolo/dp/1630811955/
-
-=== ! no negative permissions
-"The NIST (nist rbac) model is based on positive permissions that confer the ability to do something on holders of the permission. The NIST model does not rule out the use of so-called negative permissions which deny access. Thus vendors are free to add this feature. Nevertheless vendors and users are cautioned that use of negative permissions can be very confusing, especially in presence of general hierarchies. The uses to which they are put can often be better achieved by judicious use of constraints." [The NIST Model for Role-Based Access Control: Towards A Unified Standard Ravi Sandhu, David Ferraiolcfi and Richard Kuhrô ]
-
-== ! Business rules and workflows
-Does not ahe anything in common with security.
-
-TODO: elaborate. Restricted documents in army Classified, Secret, Top Secret (ranks in the army vs positions held in the army).
-
-TODO: elaborate: Mandatory Access Control (MAC) and Discretionary Access Control (DAC). Con owner of  resource grant permission to another user to that permission?
-
-=== drawbacks of rbac
-
-=== The two questions:
-. What User X can access?
-. Who can access Resource Y?
-
-While RBAC can answer to the first rule (and not the second), because the permissions are kept on the User (trough Roles)
-int the form of a protected resource plus an allowed action, this framework unfortunately cannot respond neither.
-
-=== Language
-
+=== Terminology
 .Names used:
-. users
-. permissions
-.. protected resource
-.. actions
-. subject
-. session
-.. security context
+. _user_ - user that performs an action
+. _permission_ - a protected resource and an action to be conducted on that resource
+.. _protected resource_ - an object that is the subject of a user's action.
+.. _action_ - action to be conducted against a protected resource (READ/WRITE etc.).
+. _subject_ - computer process acting on behalf of a user
+. _policy rule_ - a piece of code that permit or not the permission that the user is trying to obtain.
 
-ABAC defines `Subject Attributes`, `Object Attributes` and `Environmental Attributes`
+=== Example
+To better understand the framework here is an example. Let's take the previous one:
 
-== ABAC
+_"User can READ patient's records if it is a doctor, the patient have an appointment to the doctor and can only access records related to the medicine branch that the doctor is part of. But this only during the working hours of the doctor."_
 
-`........`
+The implementations used in the code are from https://github.com/narvisoftware/protego-basic[protego-basic].
+
+Init the framework:
+[source,java]
+----
+    PolicyRulesProvider policyRulesProvider = new BasicPolicyRuleProvider();
+    PolicyEvaluator.registerProviders(policyRulesProvider);
+----
+
+Store the authenticated user:
+[source,java]
+----
+  private static final ScopedValue<User> AUTHENTICATED_USER= ScopedValue.newInstance();
+  ...
+  User authenticatedUser = authenticate(credentials);
+  ScopedValue.where(AUTHENTICATED_USER, authenticatedUser)
+        .run(() -> service.processRequest(pacientRecord))
+----
+
+Test the access:
+[source,java]
+----
+    AllowSameBranchPermission allowSameBranchPermission = new AllowSameBranchPermission(READ, somePacientRecord);
+    PolicyEvaluator.evaluatePermission(allowSameBranchPermission);
+----
+
+The permission:
+[source,java]
+----
+    public class AllowSameBranchPermission<CrudAction, PacientRecord> extends Permission {
+    public AllowSameBranchPermission(PacientRecord protectedResource, CrudAction action) {
+      super(protectedResource, action);
+    }
+  }
+----
+And the policy rule:
+[source,java]
+----
+public class AllowSameBranchPolicyRule implements PolicyRule {
+
+  private static final ScopedValue<User> AUTHENTICATED_USER = ScopedValue.newInstance();
+
+  @Override
+  public Decision evaluate(Permission permission) {
+    if (!(permission instanceof AllowSameBranchPermission)) {
+      return WITHHOLD;
+    }
+    //the doctor is the subject
+    User authenticatedUser = AUTHENTICATED_USER.get();
+    if (!authenticatedUser.isDoctor()) {
+      return WITHHOLD;
+    }
+    // only read is allowed
+    if (permission.getAction() != CrudAction.READ) {
+      return WITHHOLD;
+    }
+    // has an appointment today
+    if (!permission.getProtectedResource().getOwner().hasAppointemnt(authenticatedUser, LocalDate.now())) {
+      return WITHHOLD;
+    }
+    //the medical record belongs to the same medicine branch
+    if (authenticatedUser.asDoctor().getSpeciality() != permission.getProtectedResource().getSpeciality()) {
+      return WITHHOLD;
+    }
+    //the doctor is at work
+    if (!authenticatedUser.getTodaysWorkingHoursInterval().includes(Instant.now())) {
+      return WITHHOLD;
+    }
+    return PERMIT;
+  }
+}
+----
 
 image:https://badgers.space/badge/foo/Important/gray?icon=feather-alert-circle&scale=1.4&label=&label_color=green[]
 [IMPORTANT]
@@ -64,8 +132,10 @@ I can identify two:
 . a `PolicyRulesProvider` implementation can be build unsafely by being tricked to load malicious `PolicyRule` classes.
 For example, a `PolicyRulesProvider` can load all `PolicyRule` subclasses from classpath. But into an open source
 library used by the application, someone can add a `PolicyRule` that permit everything to a specific username for example.
-. a `PolicyRule` can have bugs and unintendedly respond with PERMIT. So `PolicyRule` implementations must be fully tested
-with all edge cases.
+.. to avoid this, in the implementation project (https://github.com/narvisoftware/protego-basic[protego-basic]), the https://github.com/narvisoftware/protego-basic/blob/main/src/main/java/app/narvi/authz/rules/BasicPolicyRuleProvider.java[BasicPolicyRuleProvider] verifies the signatures of each https://github.com/narvisoftware/protego-core/blob/main/src/main/java/app/narvi/authz/PolicyRule.java[PolicyRule]
+.. the https://github.com/narvisoftware/protego-core/blob/main/src/main/java/app/narvi/authz/PolicyEvaluator.java[PolicyEvaluator] can be initialized only once.
+. a `PolicyRule` can have bugs and unintendedly respond with PERMIT.
+.. as a result, each `PolicyRule` implementations must be fully tested with all edge cases.
 ====
 
 === License

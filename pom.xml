@@ -30,7 +30,7 @@
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>2.0.12</version>
+      <version>2.0.13</version>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
@@ -50,5 +50,31 @@
       <scope>test</scope>
     </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jdeps-plugin</artifactId>
+        <version>3.1.2</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>jdkinternals</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <multiRelease>22</multiRelease>
+        </configuration>
+      </plugin>
+<!--      <plugin>-->
+<!--        <groupId>org.apache.maven.plugins</groupId>-->
+<!--        <artifactId>maven-jlink-plugin</artifactId>-->
+<!--        <version>3.2.0</version>-->
+<!--        <extensions>true</extensions>-->
+<!--      </plugin>-->
+    </plugins>
+  </build>
 
 </project>

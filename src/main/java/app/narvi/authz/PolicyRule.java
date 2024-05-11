@@ -2,9 +2,9 @@ package app.narvi.authz;
 
 public interface PolicyRule {
 
-  public enum Decision {
+  enum Decision {
     PERMIT,
-    NOT_APPLICABLE
+    WITHHOLD
   }
 
   Decision evaluate(Permission permission);
