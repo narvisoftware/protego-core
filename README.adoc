@@ -65,8 +65,7 @@ Store the authenticated user:
   private static final ScopedValue<User> AUTHENTICATED_USER= ScopedValue.newInstance();
   ...
   User authenticatedUser = authenticate(credentials);
-  ScopedValue.where(AUTHENTICATED_USER, authenticatedUser)
-        .run(() -> service.processRequest(pacientRecord))
+  ScopedValue.where(AUTHENTICATED_USER, authenticatedUser).run(() -> service.processRequest(pacientRecord))
 ----
 
 Test the access:
@@ -79,7 +78,7 @@ Test the access:
 The permission:
 [source,java]
 ----
-    public class AllowSameBranchPermission<CrudAction, PacientRecord> extends Permission {
+  public class AllowSameBranchPermission<CrudAction, PacientRecord> extends Permission {
     public AllowSameBranchPermission(PacientRecord protectedResource, CrudAction action) {
       super(protectedResource, action);
     }
