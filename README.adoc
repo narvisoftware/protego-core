@@ -125,7 +125,7 @@ public class AllowSameBranchPolicyRule implements PolicyRule {
 
 image:https://badgers.space/badge/foo/Important/gray?icon=feather-alert-circle&scale=1.4&label=&label_color=green[]
 [IMPORTANT]
-.Vulnerability aspects
+.*Vulnerability aspects*
 ====
 I can identify two:
 
