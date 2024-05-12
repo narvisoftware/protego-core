@@ -65,7 +65,7 @@ Store the authenticated user:
 private static final ScopedValue<User> AUTHENTICATED_USER = ScopedValue.newInstance();
 ...
 User authenticatedUser = authenticate(credentials);
-ScopedValue.where(AUTHENTICATED_USER, authenticatedUser).run(() -> service.processRequest(pacientRecord))
+ScopedValue.where(AUTHENTICATED_USER, authenticatedUser).run(() -> service.processRequest(pacientRecord));
 ----
 
 Test the access:
@@ -90,32 +90,32 @@ And the policy rule:
 public class AllowSameBranchPolicyRule implements PolicyRule {
 
   @Override
-  public Decision evaluate(Permission permission) {
+  public boolean hasPermission(Permission permission) {
     if (!(permission instanceof AllowSameBranchPermission)) {
-      return WITHHOLD;
+      return false;
     }
     //the doctor is the subject
     User authenticatedUser = AUTHENTICATED_USER.get();
     if (!authenticatedUser.isDoctor()) {
-      return WITHHOLD;
+      return false;
     }
     // only read is allowed
     if (permission.getAction() != CrudAction.READ) {
-      return WITHHOLD;
+      return false;
     }
     // has an appointment today
     if (!permission.getProtectedResource().getOwner().hasAppointemnt(authenticatedUser, LocalDate.now())) {
-      return WITHHOLD;
+      return false;
     }
     //the medical record belongs to the same medicine branch
     if (authenticatedUser.asDoctor().getSpeciality() != permission.getProtectedResource().getSpeciality()) {
-      return WITHHOLD;
+      return false;
     }
     //the doctor is at work
     if (!authenticatedUser.getTodaysWorkingHoursInterval().includes(Instant.now())) {
-      return WITHHOLD;
+      return false;
     }
-    return PERMIT;
+    return true;
   }
 }
 ----

@@ -1,7 +1,7 @@
 package app.narvi.authz;
 
-import static app.narvi.authz.PolicyRule.Decision.WITHHOLD;
-import static app.narvi.authz.PolicyRule.Decision.PERMIT;
+import static app.narvi.authz.AuditProvider.Decision.PERMIT;
+import static app.narvi.authz.AuditProvider.Decision.WITHHOLD;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;
@@ -11,7 +11,6 @@ import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import app.narvi.authz.PolicyRule.Decision;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,24 +42,24 @@ public class PolicyEvaluator<E extends PolicyRule> {
   }
 
   public static void evaluatePermission(Permission permission) {
-    if (evaluate(permission) == WITHHOLD) {
+    if (!hasPermission(permission)) {
       throw new PolicyException("Action not permitted");
     }
   }
 
-  public static Decision evaluate(Permission permission) {
+  public static boolean hasPermission(Permission permission) {
     if (soleInstance == null || soleInstance.rulesCollection == null) {
       throw new IllegalStateException("RulesCollection has not being initialized.");
     }
     for (PolicyRule aPolicyRule : ((List<? extends PolicyRule>) soleInstance.rulesCollection)) {
-      Decision decision = aPolicyRule.evaluate(permission);
+      boolean decision = aPolicyRule.hasPermisssion(permission);
       AuditServices.getAuditProviders()
-          .forEach(auditProvider -> auditProvider.audit(permission, aPolicyRule, decision));
-      if (decision == PERMIT) {
-        return PERMIT;
+          .forEach(auditProvider -> auditProvider.audit(permission, aPolicyRule, decision ? PERMIT : WITHHOLD));
+      if (decision) {
+        return true;
       }
     }
-    return WITHHOLD;
+    return false;
 
   }
 
