@@ -1,6 +1,17 @@
 = Protego Core
 :icons: font
 
+image::https://badgers.space/badge/foo/Warning/red?icon=feather-alert-triangle&scale=1.4&label=&label_color=orange[]
+[IMPORTANT]
+.Work in progress
+====
+TODO:
+
+- create javadoc for public API
+- full coverage with unit tests
+- create release (for jitpack.io) and publish it to maven central
+====
+
 This project is a simple implementation of an authorization mechanism. It can be named an Attribute Based Authorization Control (ABAC) or simply a Policy Rule Based Authorization.
 
 This is not a fancy enterprise level, distributed and centralised authorisation mechanism. It is a simple-to-use framework as it should be any other.
