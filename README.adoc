@@ -45,7 +45,7 @@ Well, this framework can answer neither. RBAC can answer to the first rule (and 
 image::https://badgers.space/badge/foo/Warning/orange?icon=feather-alert-triangle&scale=1.4&label=&label_color=red[]
 To keep things simple and to contradict Nassim Taleb who wrote on _Antifragile_ that _"Technothinkers love precision at the expense of applicability"_, there are no negative permissions or better said: *policy rules cannot explicitly deny access*. This is in concordance with NIST RBAC.
 The poly rule can permit something or just withold his vote.
-And also there are no roles. Because why not?
+And also there are no roles. Because I didn't find any real use of roles when using attribute-based authorization.
 
 === Terminology
 .Names used:
