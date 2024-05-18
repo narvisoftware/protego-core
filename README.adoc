@@ -40,7 +40,7 @@ I guess that the reason to be so complicated it is to be able to answer to the t
 . On what resources user X has access?
 . What users can access resource Y?
 
-Well, this framework can answer neither. RBAC can answer to the first rule (and not the second).
+Well, this framework cannot answer to neither one. RBAC can answer to the first question (and not the second).
 
 image::https://badgers.space/badge/foo/Warning/orange?icon=feather-alert-triangle&scale=1.4&label=&label_color=red[]
 To keep things simple and to contradict Nassim Taleb who wrote on _Antifragile_ that _"Technothinkers love precision at the expense of applicability"_, there are no negative permissions or better said: *policy rules cannot explicitly deny access*. This is in concordance with NIST RBAC.
