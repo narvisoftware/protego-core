@@ -28,7 +28,7 @@ public class PolicyEvaluator<E extends PolicyRule> {
 
   public static <PRP extends PolicyRulesProvider> void registerProviders(PRP... policyRulesProvider) {
     if (soleInstance != null) {
-      throw new NullPointerException("RulesCollection has already being set.");
+      throw new IllegalAPIUsageException("RulesCollection has already being set.");
     }
     if (policyRulesProvider == null) {
       throw new NullPointerException("RulesCollection cannot be null.");
@@ -67,11 +67,18 @@ public class PolicyEvaluator<E extends PolicyRule> {
     LOG.info("Loading Audit Providers");
     ServiceLoader<AuditProvider> auditLoader = ServiceLoader.load(AuditProvider.class);
     auditLoader.forEach(auditProvider ->
-        LOG.info("Found Audit Provider: " + auditProvider.getClass().getCanonicalName())
+        LOG.info(STR."Found Audit Provider: \{auditProvider.getClass().getCanonicalName()}")
     );
     auditLoader.forEach(AuditServices::addProvider);
     if (auditLoader.stream().count() == 0) {
       LOG.info("NO Audit Providers found!");
+    }
+  }
+
+  public static class IllegalAPIUsageException extends RuntimeException {
+
+    public IllegalAPIUsageException(String message) {
+      super(message);
     }
   }
 
