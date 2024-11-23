@@ -1,4 +1,4 @@
-package app.narvi.authz;
+package app.narvi.protego;
 
 public enum CrudAction {
   CREATE,

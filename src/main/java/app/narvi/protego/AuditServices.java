@@ -1,4 +1,4 @@
-package app.narvi.authz;
+package app.narvi.protego;
 
 import java.util.Collections;
 import java.util.Set;

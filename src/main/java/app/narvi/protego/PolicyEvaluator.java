@@ -1,7 +1,7 @@
-package app.narvi.authz;
+package app.narvi.protego;
 
-import static app.narvi.authz.AuditProvider.Decision.PERMIT;
-import static app.narvi.authz.AuditProvider.Decision.WITHHOLD;
+import static app.narvi.protego.AuditProvider.Decision.PERMIT;
+import static app.narvi.protego.AuditProvider.Decision.WITHHOLD;
 
 import java.lang.invoke.MethodHandles;
 import java.util.Arrays;

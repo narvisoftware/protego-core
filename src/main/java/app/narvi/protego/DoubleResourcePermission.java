@@ -1,4 +1,4 @@
-package app.narvi.authz;
+package app.narvi.protego;
 
 public class DoubleResourcePermission<PR1, PR2, A> {
 
