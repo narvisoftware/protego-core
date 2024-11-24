@@ -2,7 +2,7 @@ package app.narvi.protego;
 
 public interface AuditProvider {
 
-  public enum Decision {
+  enum Decision {
     PERMIT,
     WITHHOLD
   }

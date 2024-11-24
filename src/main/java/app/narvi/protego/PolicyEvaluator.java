@@ -67,7 +67,7 @@ public class PolicyEvaluator<E extends PolicyRule> {
     LOG.info("Loading Audit Providers");
     ServiceLoader<AuditProvider> auditLoader = ServiceLoader.load(AuditProvider.class);
     auditLoader.forEach(auditProvider ->
-        LOG.info(STR."Found Audit Provider: \{auditProvider.getClass().getCanonicalName()}")
+        LOG.info("Found Audit Provider: " + auditProvider.getClass().getCanonicalName())
     );
     auditLoader.forEach(AuditServices::addProvider);
     if (auditLoader.stream().count() == 0) {
