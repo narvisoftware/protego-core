@@ -1,44 +1,41 @@
 package app.narvi.protego;
 
-import static app.narvi.protego.AuditProvider.Decision.PERMIT;
-import static app.narvi.protego.AuditProvider.Decision.WITHHOLD;
+import static app.narvi.protego.PermissionDecision.Decision.PERMIT;
 
 import java.lang.invoke.MethodHandles;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PolicyEvaluator<E extends PolicyRule> {
+import app.narvi.protego.AuditProvider.Votes;
+
+public class PolicyEvaluator<PRP extends PolicyRulesProvider> {
 
   private static final Logger LOG = LoggerFactory.getLogger(MethodHandles.lookup().lookupClass());
 
-  private final List<E> rulesCollection;
+  private final Set<PRP> policyRulesProviders;
 
   private static PolicyEvaluator soleInstance;
 
-  public PolicyEvaluator(List<E> rulesCollection) {
-    this.rulesCollection = Collections.unmodifiableList(rulesCollection);
+  private PolicyEvaluator(Set<PRP> policyRulesProviders) {
+    this.policyRulesProviders = Collections.unmodifiableSet(policyRulesProviders);
   }
 
-  public static <PRP extends PolicyRulesProvider> void registerProviders(PRP... policyRulesProvider) {
+  public static <PRP extends PolicyRulesProvider> void registerProviders(PRP... policyRulesProviders) {
     if (soleInstance != null) {
       throw new IllegalAPIUsageException("RulesCollection has already being set.");
     }
-    if (policyRulesProvider == null) {
-      throw new NullPointerException("RulesCollection cannot be null.");
+    if (policyRulesProviders == null || policyRulesProviders.length == 0) {
+      throw new NullPointerException("At least one RulesCollection must be provided.");
     }
 
-    List<? super PolicyRule> policyRules = Arrays.stream(policyRulesProvider).flatMap(
-        polRuleProv -> StreamSupport.stream(polRuleProv.collect().spliterator(), false)
-    ).collect(Collectors.toList());
-
-    soleInstance = new PolicyEvaluator(policyRules);
+    soleInstance = new PolicyEvaluator(Set.of(policyRulesProviders));
   }
 
   public static void evaluatePermission(Permission permission) {
@@ -48,18 +45,38 @@ public class PolicyEvaluator<E extends PolicyRule> {
   }
 
   public static boolean hasPermission(Permission permission) {
-    if (soleInstance == null || soleInstance.rulesCollection == null) {
+    if (soleInstance == null || soleInstance.policyRulesProviders == null) {
       throw new IllegalStateException("RulesCollection has not being initialized.");
     }
-    for (PolicyRule aPolicyRule : ((List<? extends PolicyRule>) soleInstance.rulesCollection)) {
-      boolean decision = aPolicyRule.hasPermisssion(permission);
-      AuditServices.getAuditProviders()
-          .forEach(auditProvider -> auditProvider.audit(permission, aPolicyRule, decision ? PERMIT : WITHHOLD));
-      if (decision) {
-        return true;
+    Set<? extends PolicyRule> policyRules = ((Set<? extends PolicyRulesProvider>) soleInstance.policyRulesProviders)
+        .stream()
+        .map(prp -> prp.collect(permission))
+        .flatMap(Collection::stream)
+        .collect(Collectors.toSet());
+
+    Votes<PolicyRule> votes = new Votes<>();
+    boolean permissionGranted = false;
+    for (PolicyRule aPolicyRule : policyRules) {
+      if (!aPolicyRule.isPermissionSupported(permission)) {
+        votes.addAbstainVote(
+            "Permission is not of type " + aPolicyRule.getSupportedPermissionType(),
+            aPolicyRule
+        );
+        continue;
+      }
+      PermissionDecision permissionDecision = aPolicyRule.hasPermission();
+      votes.add(permissionDecision, aPolicyRule);
+      if (permissionDecision.getDecision() == PERMIT) {
+        permissionGranted = true;
+        break;
       }
     }
-    return false;
+    Set<PolicyRule> skippedFromVoting = policyRules.stream()
+        .filter(pr -> !votes.containsPolicyRule(pr))
+        .collect(Collectors.toSet());
+    AuditServices.getAuditProviders()
+        .forEach(auditProvider -> auditProvider.audit(permission, votes, skippedFromVoting));
+    return permissionGranted;
 
   }
 

@@ -1,21 +1,27 @@
 package app.narvi.protego;
 
-public class Permission<A, PR> {
+import java.util.LinkedHashMap;
+import java.util.Map;
 
-  private A action;
-  private PR protectedResource;
+public abstract class Permission<A> {
 
+  protected A action;
+  //key=class's simple name. val=object instance
+  protected Map<String, Object> protectedResources = new LinkedHashMap<>();
 
-  public Permission(A action, PR protectedResource) {
+  public Permission(A action, Object... protectedResources) {
     this.action = action;
-    this.protectedResource = protectedResource;
-  }
-
-  public PR getProtectedResource() {
-    return protectedResource;
+    for(Object aProtectedResource : protectedResources) {
+      this.protectedResources.put(aProtectedResource.getClass().getSimpleName(), aProtectedResource);
+    }
   }
 
   public A getAction() {
     return action;
   }
+
+  public Map<String, Object> getProtectedResources() {
+    return protectedResources;
+  }
+
 }

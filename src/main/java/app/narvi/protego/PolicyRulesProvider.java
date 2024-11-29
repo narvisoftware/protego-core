@@ -1,7 +1,9 @@
 package app.narvi.protego;
 
+import java.util.Set;
+
 public interface PolicyRulesProvider {
 
-  Iterable<? super PolicyRule> collect();
+  <P extends Permission> Set<? extends PolicyRule> collect(P permission);
 
 }
