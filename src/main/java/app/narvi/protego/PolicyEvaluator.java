@@ -5,7 +5,6 @@ import static app.narvi.protego.PermissionDecision.Decision.PERMIT;
 import java.lang.invoke.MethodHandles;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 import java.util.ServiceLoader;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,6 +46,9 @@ public class PolicyEvaluator<PRP extends PolicyRulesProvider> {
   public static boolean hasPermission(Permission permission) {
     if (soleInstance == null || soleInstance.policyRulesProviders == null) {
       throw new IllegalStateException("RulesCollection has not being initialized.");
+    }
+    if (permission == null) {
+      throw new NullPointerException("Permission sent for evaluation cannot be null.");
     }
     Set<? extends PolicyRule> policyRules = ((Set<? extends PolicyRulesProvider>) soleInstance.policyRulesProviders)
         .stream()

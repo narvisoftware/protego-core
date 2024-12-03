@@ -4,7 +4,6 @@ import static app.narvi.protego.PermissionDecision.Decision.ABSTAIN;
 import static app.narvi.protego.PermissionDecision.Decision.DENY;
 import static app.narvi.protego.PermissionDecision.Decision.PERMIT;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;

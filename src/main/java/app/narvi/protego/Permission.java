@@ -11,7 +11,7 @@ public abstract class Permission<A> {
 
   public Permission(A action, Object... protectedResources) {
     this.action = action;
-    for(Object aProtectedResource : protectedResources) {
+    for (Object aProtectedResource : protectedResources) {
       this.protectedResources.put(aProtectedResource.getClass().getSimpleName(), aProtectedResource);
     }
   }
