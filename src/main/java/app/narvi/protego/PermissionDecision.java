@@ -12,7 +12,7 @@ public class PermissionDecision {
   private String reasonDescription;
 
   public PermissionDecision(Decision decision, String reasonDescription) {
-    if(decision == null) {
+    if (decision == null) {
       throw new NullPointerException("The chosen decision cannot be null!");
     }
     this.decision = decision;
@@ -32,6 +32,7 @@ public class PermissionDecision {
   }
 
   public static class PermissionDecisionBuilder {
+
     private Decision decision;
 
     private PermissionDecisionBuilder(Decision decision) {

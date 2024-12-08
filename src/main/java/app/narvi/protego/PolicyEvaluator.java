@@ -86,11 +86,20 @@ public class PolicyEvaluator<PRP extends PolicyRulesProvider> {
     LOG.info("Loading Audit Providers");
     ServiceLoader<AuditProvider> auditLoader = ServiceLoader.load(AuditProvider.class);
     auditLoader.forEach(auditProvider ->
-        LOG.info("Found Audit Provider: " + auditProvider.getClass().getCanonicalName())
+        LOG.info("Found Audit Provider (in Java service providers): " + auditProvider.getClass().getCanonicalName())
     );
-    auditLoader.forEach(AuditServices::addProvider);
+    auditLoader.forEach(ap -> {
+      if (!AuditServices.containsAuditProvider(ap)) {
+        AuditServices.addProvider(ap);
+        LOG.info("Audit Provider (from Java service providers): " + ap.getClass().getCanonicalName()
+            + " it will be loaded.");
+      } else {
+        LOG.info("Audit Provider (from Java service providers): " + ap.getClass().getCanonicalName()
+            + " is NOT loaded because already exist.");
+      }
+    });
     if (auditLoader.stream().count() == 0) {
-      LOG.info("NO Audit Providers found!");
+      LOG.info("NO Audit Providers found in Java service providers!");
     }
   }
 

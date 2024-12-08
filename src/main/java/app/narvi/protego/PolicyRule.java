@@ -3,6 +3,8 @@ package app.narvi.protego;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 
+import com.google.common.reflect.TypeToken;
+
 public abstract class PolicyRule<P extends Permission> {
 
   protected Class<P> supportedPermissionType;
@@ -12,7 +14,8 @@ public abstract class PolicyRule<P extends Permission> {
     while (superClassType instanceof Class) {
       superClassType = ((Class) superClassType).getGenericSuperclass();
     }
-    supportedPermissionType = (Class<P>) ((ParameterizedType) superClassType).getActualTypeArguments()[0];
+    Type permissionType = ((ParameterizedType) superClassType).getActualTypeArguments()[0];
+    supportedPermissionType = (Class<P>) TypeToken.of(permissionType).getRawType();
   }
 
   public boolean isPermissionSupported(P permission) {
